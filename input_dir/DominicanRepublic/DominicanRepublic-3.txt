@@ -1,0 +1,30 @@
+413 rfzflo lcriodsyqyl DominicanRepublic 11 Leprosy NO
+3204 dutvrvoiqtcr mngefus DominicanRepublic 90 Diphtheria NO
+8013 huhozyttu zdplddvkuvaf DominicanRepublic 12 Tuberculosis YES 1-6-1757
+7972 qkk dajbrlbkwa DominicanRepublic 42 Ebola-Hemorrhagic-Fever YES 9-12-1721
+2173 jdvsujgs wvjpzxnduuo DominicanRepublic 96 Viral-Hemorrhagic-Fever YES 5-6-1949
+7118 sinffklhs mmltnajkljoal DominicanRepublic 38 Staphylococcal-Infection-Vancomycin-Resistant NO
+9788 tzpesozn abwcdqtyyp DominicanRepublic 20 Viral-Hemorrhagic-Fever YES 19-1-1963
+3885 jwujlwgyw baz DominicanRepublic 28 Haemophilus-Influenza-disease-Type-B NO
+3249 iki nfbkjo DominicanRepublic 94 Scabies-Infestation NO
+2965 xfwlhhidkbl lplisr DominicanRepublic 107 Syphilis-primary-secondary-early-latent-late-latent-congenital YES 16-3-1893
+8732 khq xidxjgukdkucv DominicanRepublic 25 Encephalitis-Arboviral-or-parainfectious NO
+7150 rcuoibatw spdopdir DominicanRepublic 7 Mumps YES 12-5-2280
+4215 rdtlyxqy suz DominicanRepublic 8 Staphylococcal-Infection-Vancomycin-Resistant NO
+2750 fcdtmieytp fcsdlepbmpl DominicanRepublic 10 Chlamydia YES 13-9-1887
+7931 ttsnwvtqjfzk shewbbtq DominicanRepublic 31 Clostridium-Difficile-Infection NO
+8931 hovlu bnpjlxssbwbio DominicanRepublic 57 Carbapenem-resistant-Infection YES 18-2-2055
+8961 ymipvasgmwufy mxrxlrvt DominicanRepublic 111 Human-Immunodeficiency-Virus/AIDS NO
+990 mhrgrbnolmmw seylhc DominicanRepublic 16 Chikungunya-Virus-Infection NO
+6022 aegsfpxxducs lsagzmltdvvmwi DominicanRepublic 118 Pelvic-Inflammatory-Disease NO
+6220 rnnsyzxvn iigtg DominicanRepublic 73 Powassan NO
+6036 kubsblxfwtktr kbpgtzzf DominicanRepublic 3 Leptospirosis YES 1-2-2156
+7523 zbujlwmevsekmw ilvrhvfxeawml DominicanRepublic 40 Acute-Flaccid-Myelitis YES 18-8-1984
+9544 ltdhyedvclmbuv bbxdjghtofef DominicanRepublic 116 Ricin-Poisoning YES 29-2-2011
+9792 osmninindn fhf DominicanRepublic 88 Poliomyelitis NO
+1571 kwclazjxkeaje yecstseysaowki DominicanRepublic 88 E-coli-infection-Shiga-toxin-producing NO
+3662 mdgmclo xgpmb DominicanRepublic 51 COVID-19 YES 1-9-1915
+9550 dnifehud mznqyltkl DominicanRepublic 23 Meningitis-Viral NO
+8219 pji pizysn DominicanRepublic 86 Ehrlichiosis NO
+8809 qcaq yjxx DominicanRepublic 30 Staphylococcal-Infection-Vancomycin-Intermediate NO
+5218 kjjcejtnfm jhwgizlli DominicanRepublic 16 COVID-19 NO

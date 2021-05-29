@@ -1,0 +1,23 @@
+5480 wxl vmgnckas MarshallIslands 7 Herpes NO
+2118 rrzfi ercxvksvd MarshallIslands 14 Rabies NO
+5084 udycskb xhundulfmr MarshallIslands 44 Enterovirus-Infection-D68 YES 14-2-2283
+9108 lztwnqug trqsznxbogui MarshallIslands 108 Tetanus-Infection-tetani YES 5-5-1879
+420 badm orfrmqtqn MarshallIslands 85 Hemolytic-Uremic-Syndrome YES 14-4-1804
+3127 gvrfyaupufcz ryqwbekkwjbl MarshallIslands 78 Encephalitis-Arboviral-or-parainfectious YES 23-4-1775
+750 apjdtq vqxbltfd MarshallIslands 38 Clostridium-Difficile-Infection NO
+1868 hcjihs ojbdxmwja MarshallIslands 94 Leprosy NO
+5318 yhmume xfmxp MarshallIslands 80 Lyme-Disease YES 2-4-2103
+7033 nfusfvpdgnp hgndj MarshallIslands 3 Hepatitis-D NO
+9659 mnerdhawlx kvi MarshallIslands 48 Legionellosis NO
+7793 uxhwlvtwrfkq nsawbmueeb MarshallIslands 49 Melioidosis NO
+3805 qdpqrg mhzfzzu MarshallIslands 109 Malaria NO
+8137 ggoxaokuypqtu tubo MarshallIslands 44 Vibrio-cholerae YES 9-1-2109
+8289 emmpmrpaq xotarim MarshallIslands 3 Syphilis-primary-secondary-early-latent-late-latent-congenital NO
+9014 ikfmbicav sxynozhtabwugj MarshallIslands 40 Vibrio-cholerae NO
+2748 vhsfqkkqqf pooppwzligzsr MarshallIslands 120 Varicella NO
+4938 wkdgyppull kgbzezfokzbstd MarshallIslands 82 Plague;-Bubonic-Septicemic-Pneumonic NO
+9355 bknfthh nrcbfnwjxdcxa MarshallIslands 12 Lymphogranuloma-venereum-infection YES 4-9-1847
+3080 yibnbsu iia MarshallIslands 70 Anthrax YES 7-9-1903
+9811 uvfuhsvcgviw qfsrnervzphfjb MarshallIslands 13 Salmonellosis-gastroenteritis NO
+8598 sognabkd zsrf MarshallIslands 11 Vibriosis YES 30-9-1868
+8118 pbulhujnkgkxlv jvczovzhthvp MarshallIslands 77 COVID-19 YES 16-9-1922

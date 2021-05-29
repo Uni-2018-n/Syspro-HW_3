@@ -1,0 +1,25 @@
+3704 refbv sijdtqtxumj Eswatini 9 Meningitis-Viral NO
+9687 hai uxkxze Eswatini 43 Creutzfeldt-Jacob-Disease-transmissible-spongiform-encephalopathy NO
+9994 znofglpiqhzo uijnnxvbreh Eswatini 55 Shigellosis-gastroenteritis NO
+7967 iojzwpld nofxczzypfycaa Eswatini 19 Dengue-1-2-3-4 NO
+4264 agktplrafhkjyl vkdb Eswatini 58 Typhus NO
+6553 coydusevmb ucjqzvdqvl Eswatini 22 Staphyloccal-Infection-Methicillin-resistant YES 4-4-1879
+8909 abk ugfcgvn Eswatini 115 Babesiosis YES 21-5-1921
+8347 utuzfaipwg lbonhywgibtfk Eswatini 14 Staphylococcal-Food-Poisoning-Enterotoxin-B-Poisoning NO
+6901 zrj tvjjtzsdvlzyf Eswatini 115 Dengue-1-2-3-4 NO
+170 nlqhzjaey culcnnijtqew Eswatini 75 Pertussis YES 4-9-1880
+7225 jwpvqzm nfcdsqnzpewu Eswatini 33 Legionellosis NO
+1077 dzefik dhrfj Eswatini 104 Anthrax YES 25-7-2240
+1360 gcpcak qdzbxvmpqt Eswatini 111 Melioidosis YES 10-10-1953
+8489 oiaoyllboerw gug Eswatini 120 Paralytic-Shellfish-Poisoning NO
+8702 tjbd xizysviytkkum Eswatini 112 Human-Papillomavirus NO
+8170 duatvfj pgc Eswatini 16 Hepatitis-C NO
+8686 fsatzyqxauf zmvvyvryvfuktn Eswatini 102 West-Nile-Virus YES 28-5-2278
+3366 egruv awgqamatqcde Eswatini 45 Staphylococcal-Infection-Vancomycin-Intermediate NO
+303 tpyvvbr iiv Eswatini 15 Norovirus NO
+9393 plbkkogouxaer sipk Eswatini 68 Gonococcal-Infection NO
+6489 wmyyvzmtvybacx tpiceoaxyyaqi Eswatini 91 Typhoid-Fever-Group-D NO
+7625 hkkinizrx mveqynu Eswatini 111 Syphilis-primary-secondary-early-latent-late-latent-congenital YES 10-4-2094
+6578 hzashazflnjh yncngrkpecud Eswatini 65 Ciguatera YES 12-9-2255
+2996 bml uoqysmgmbgi Eswatini 6 Norovirus YES 22-6-2116
+1381 kqkyrbzuitm ejsivk Eswatini 38 Staphylococcal-Infection-Vancomycin-Intermediate NO
