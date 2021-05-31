@@ -43,7 +43,6 @@ int main(int argc, const char** argv) {
     }
 
     struct hostent *rem;
-    struct in_addr **addr_list;
     if((rem = gethostbyname("localhost")) == NULL){
         cout << "ERROR" << endl;
     }

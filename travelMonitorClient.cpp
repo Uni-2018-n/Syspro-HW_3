@@ -14,18 +14,20 @@
 #include <signal.h>
 
 #include "fromProjectOneAndTwo/fromProjectTwo/sList.hpp"
+#include "fromProjectOneAndTwo/fromProjectOne/Structures/virusesList.hpp"
+#include "funcs.hpp"
 
 using namespace std;
 
 #define PORT 15000
 
 int main(int argc, const char** argv) {
-    int numMonitors, socketBufferSize, cyclicBufferSize, sizeOfBloom, numThreads;
+    int numMonitors, socketBufferSize, cyclicsocketBufferSize, sizeOfBloom, numThreads;
     char* pathToDirs;
 
     if(argc != 13){//simple steps to set the command line arguments to parameters
         cout << "Error! Wrong parameters:" << endl;
-        cout << "./travelMonitorClient –m numMonitors -b socketBufferSize -c cyclicBufferSize -s sizeOfBloom -i input_dir -t numThreads" << endl;
+        cout << "./travelMonitorClient –m numMonitors -b socketsocketBufferSize -c cyclicsocketBufferSize -s sizeOfBloom -i input_dir -t numThreads" << endl;
         return -1;
     }
     for(int i=1;i<argc;i++){
@@ -34,7 +36,7 @@ int main(int argc, const char** argv) {
         }else if(strcmp(argv[i], "-b")==0){
             socketBufferSize = atoi(argv[i+1]);
         }else if(strcmp(argv[i], "-c")==0){
-            cyclicBufferSize = atoi(argv[i+1]);
+            cyclicsocketBufferSize = atoi(argv[i+1]);
         }else if(strcmp(argv[i], "-s")==0){
             sizeOfBloom = atoi(argv[i+1]);
         }else if(strcmp(argv[i], "-i")==0){
@@ -114,7 +116,7 @@ int main(int argc, const char** argv) {
         toGiveArgs[i][6] = new char[curr.length()+1]();
         strcpy(toGiveArgs[i][6], curr.c_str());
 
-        curr = to_string(cyclicBufferSize);
+        curr = to_string(cyclicsocketBufferSize);
         toGiveArgs[i][7] = new char[curr.length()+1]();
         strcpy(toGiveArgs[i][7], curr.c_str());
 
@@ -182,20 +184,38 @@ int main(int argc, const char** argv) {
         default:
             break;
             // monitorPids[i]=pid;//in the parent process store the pid for use later
+            if((sockets[i] = accept(socketfds[i], NULL, NULL)) < 0){
+                perror("error");
+                exit(1);
+            }
         }
-
-        if((sockets[i] = accept(socketfds[i], NULL, NULL)) < 0){
-            perror("error");
-            exit(1);
-        }
-
     }
 
+    VirlistHeader viruses(sizeOfBloom);//after all of this is done wait for each monitor to receive the bloom filters
     for(i=0;i<activeMonitors;i++){
-        char buff[1024];
-        read(sockets[i], buff, 1024);
-        cout << "parent: " << buff << endl;
-
+        int tempSize= readSocketInt(sockets[i], socketBufferSize);
+        string tempBlooms[tempSize];//1D array to store the encoded bloom filters for each virus from the monitor
+        for(int j=0;j<tempSize;j++){
+            int ts = readSocketInt(sockets[i], socketBufferSize);//read the blooms with error checking in case something happen while reading
+            while(ts == -1){
+                writeSocketInt(sockets[i], socketBufferSize, -1);
+                ts = readSocketInt(sockets[i], socketBufferSize);
+            }
+            writeSocketInt(sockets[i], socketBufferSize, 0);
+            tempBlooms[j] = readSocket(sockets[i], ts, socketBufferSize);//and store it into a temporary string array
+        }
+        if(readSocketInt(sockets[i], socketBufferSize) != 0){//read the confirmation message from the monitor 
+            exit(-1);
+        }
+        for(int j=0;j<tempSize;j++){//for each virus
+            int k=tempBlooms[j].find("!");//find the ! indicator to substring the name of the virus
+            VirlistNode* curr;
+            if((curr = viruses.searchVirus(tempBlooms[j].substr(0, k))) == NULL){//check if the virus exists, 
+                curr = viruses.insertVirus(tempBlooms[j].substr(0,k));//if not create it
+            }
+            tempBlooms[j].erase(0,k+1);//remove the name(and the !) of the encoded string
+            curr->insertBloom(tempBlooms[j]);//and finally append the data to the bloom filter
+        }
     }
 
 
