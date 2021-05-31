@@ -1,6 +1,11 @@
 #include <iostream>
 #include <cstring>
 #include <unistd.h>
+#include <netdb.h>
+#include <string>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <unistd.h>
 
 using namespace std;
 
@@ -37,5 +42,33 @@ int main(int argc, const char** argv) {
         j++;
     }
 
+    struct hostent *rem;
+    struct in_addr **addr_list;
+    if((rem = gethostbyname("localhost")) == NULL){
+        cout << "ERROR" << endl;
+    }
+
+    int socke;
+    struct sockaddr_in serveradr;
+    struct sockaddr* serveradrptr = (struct sockaddr*)&serveradr;
+    if((socke = socket(AF_INET, SOCK_STREAM, 0)) < 0){
+        cout << "error" << endl;
+        exit(1);
+    }
+
+    serveradr.sin_family = AF_INET;
+    memcpy(&serveradr.sin_addr, rem->h_addr, rem->h_length);
+    serveradr.sin_port = htons(portNum);
+
+    if(connect(socke, serveradrptr, sizeof(serveradr)) < 0){
+        cout << "error" << endl;
+        exit(1);
+    }
+
+    write(socke, ("test"+to_string(getpid())).c_str(), 1024);
+
+    close(socke);
+
+    cout << "DONE!" << endl;
     return 0;
 }

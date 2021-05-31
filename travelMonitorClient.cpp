@@ -1,14 +1,23 @@
-#include <dirent.h>
+#include <asm-generic/socket.h>
 #include <iostream>
+#include <dirent.h>
 #include <cstring>
-#include <string>
-#include <sys/wait.h>
 #include <unistd.h>
+#include <stdlib.h>
+
+#include <sys/wait.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <ctype.h>
+#include <signal.h>
+
 #include "fromProjectOneAndTwo/fromProjectTwo/sList.hpp"
 
 using namespace std;
 
-#define PORT 5550
+#define PORT 15000
 
 int main(int argc, const char** argv) {
     int numMonitors, socketBufferSize, cyclicBufferSize, sizeOfBloom, numThreads;
@@ -37,7 +46,6 @@ int main(int argc, const char** argv) {
         }
     }
 
-
     DIR *inputDir;
     if((inputDir = opendir(pathToDirs))== NULL){//open the input_dir provided in the command line to read the countries
         perror("travelMonitorClient: Cant open dir\n");
@@ -64,7 +72,6 @@ int main(int argc, const char** argv) {
     int i=0;
     int temp;
 
-
     if(int(countryList.count/activeMonitors) == float(float(countryList.count)/float(activeMonitors))){
         temp = 0;
     }else{
@@ -77,12 +84,13 @@ int main(int argc, const char** argv) {
         }else{
             currSize = 10+int(countryList.count/activeMonitors)+temp;
         }
+
         toGiveArgs[i]= new char*[currSize+1];
         string curr = "-p";
         toGiveArgs[i][0] = new char[curr.length()+1]();
         strcpy(toGiveArgs[i][0], curr.c_str());
 
-        curr = to_string(PORT);
+        curr = to_string(PORT+i);
         toGiveArgs[i][1] = new char[curr.length()+1]();
         strcpy(toGiveArgs[i][1], curr.c_str());
 
@@ -126,16 +134,40 @@ int main(int argc, const char** argv) {
         }
         toGiveArgs[i][j] = nullptr;
     }
+
+    int sockets[activeMonitors];
+    int socketfds[activeMonitors];
+
+    struct sockaddr_in address;
+    struct sockaddr* addressptr = (struct sockaddr *)&address;
+    int opt =1;
+    int addrlen = sizeof(address);
+
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = htonl(INADDR_ANY);
+
     
     for(i=0;i<activeMonitors;i++){
-        // string read_temp = "/tmp/fifoR." + to_string(i); //our names FiFos are stored in the /tmp/ folder with fifoR/W.child_index name
-        // string write_temp = "/tmp/fifoW."+ to_string(i);
-        // if(((mkfifo(read_temp.c_str(), PERMS)) <0) && (errno != EEXIST)){//make the fifos
-        //     perror("Parent: Cant create read FiFo\n");
-        // }
-        // if(((mkfifo(write_temp.c_str(), PERMS)) <0) &&(errno != EEXIST)){
-        //     perror("Parent: Cant create write FiFo\n");
-        // }
+        if((socketfds[i] = socket(AF_INET, SOCK_STREAM, 0)) <0){
+            perror("error");
+            exit(1);
+        }
+        address.sin_port = htons(atoi(toGiveArgs[i][1]));
+
+        if(setsockopt(socketfds[i], SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))){
+            perror("error");
+            exit(1);
+        }
+
+        if(bind(socketfds[i], addressptr, sizeof(address)) < 0){
+            perror("error");
+            exit(1);
+        }
+
+        if(listen(socketfds[i], 1) < 0){
+            perror("error");
+            exit(1);
+        }
 
         pid_t pid;
         switch(pid=fork()){//fork the new child
@@ -152,29 +184,28 @@ int main(int argc, const char** argv) {
             // monitorPids[i]=pid;//in the parent process store the pid for use later
         }
 
-        // if((readfds[i] = open(read_temp.c_str(), O_RDONLY)) < 0){//since the child is now created, open the fifos and store the file descriptors
-        //     perror("Parent: Cant open read\n");
-        // }
-        // if((writefds[i] = open(write_temp.c_str(), O_WRONLY)) < 0){
-        //     perror("Parent: Cant open write\n");
-        // }
-        
-        // if(write(writefds[i], &bufferSize, sizeof(int)) != sizeof(int)){//send the first data to the monitor(data is the bufferSize, read readme for more)
-        //     perror("Parent: BufferSize data write ERROR\n");
-        // }
+        if((sockets[i] = accept(socketfds[i], NULL, NULL)) < 0){
+            perror("error");
+            exit(1);
+        }
+
     }
+
+    for(i=0;i<activeMonitors;i++){
+        char buff[1024];
+        read(sockets[i], buff, 1024);
+        cout << "parent: " << buff << endl;
+
+    }
+
 
     for(i=0;i<activeMonitors;i++){
         int status;
         wait(&status);
         cout << status << endl;
+        close(socketfds[i]);
     }
 
-
-
-
-
-
-
+    cout << "PARENT DONE!" << endl; 
     return 0;
 }
