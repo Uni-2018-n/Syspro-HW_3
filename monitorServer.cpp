@@ -11,6 +11,7 @@
 #include <unistd.h>
 
 #include "fromProjectOneAndTwo/fromProjectOne/generalList.hpp"
+#include "funcs.hpp"
 
 using namespace std;
 
@@ -22,9 +23,13 @@ int currSizePool;
 pthread_mutex_t poolMtx;
 pthread_cond_t poolFull;
 pthread_cond_t poolEmpty;
+pthread_cond_t poolDone;
+pthread_mutex_t currSizeMtx;
 
 int threadStop;
 GlistHeader* main_list;
+pthread_mutex_t mainListMtx;
+
 
 
 void* threadFunction(void* ptr);
@@ -70,18 +75,21 @@ int main(int argc, const char** argv) {
     poolStart =0;
     poolEnd = -1;
     pthread_mutex_init(&poolMtx, 0);
+    pthread_mutex_init(&currSizeMtx, 0);
     pthread_cond_init(&poolEmpty, 0);
+    pthread_cond_init(&poolDone, 0);
     pthread_cond_init(&poolFull, 0);
 
+
+    threadStop = 1;
 
     pthread_t threads[numThreads];
     for(i=0;i<numThreads;i++){
         pthread_create(&threads[i], 0, threadFunction, 0);
     }
 
-    threadStop = 1;
-
     main_list = new GlistHeader(sizeOfBloom);
+    pthread_mutex_init(&mainListMtx, 0);
 
     struct hostent *rem;
     if((rem = gethostbyname("localhost")) == NULL){
@@ -124,6 +132,8 @@ int main(int argc, const char** argv) {
             poolEnd = (poolEnd + 1) % sizePool;
             pool[poolEnd] = pathToDirs[i]+'/'+dirent->d_name;
             currSizePool++;
+
+
             pthread_mutex_unlock(&poolMtx);
             pthread_cond_signal(&poolEmpty);
             usleep(0);
@@ -132,6 +142,37 @@ int main(int argc, const char** argv) {
         }
         countFilesOfDirs[i]=count;
         closedir(curr_dir);
+    }
+
+
+    pthread_mutex_lock(&mainListMtx);
+    string* temp_blooms = main_list->getBlooms();//after everything is done encode all the bloom filters in a string array to be easier to send to the parent
+    writeSocketInt(socke, socketBufferSize, main_list->getCountViruses());//and start sending
+    for(i=0;i<main_list->getCountViruses();i++){
+        writeSocketInt(socke, socketBufferSize, temp_blooms[i].length());
+        int t = readSocketInt(socke, socketBufferSize);
+        while(t != 0){
+            writeSocketInt(socke, socketBufferSize, temp_blooms[i].length());
+            t = readSocketInt(socke, socketBufferSize);
+        }
+        writeSocket(socke, socketBufferSize, temp_blooms[i]);
+    }
+    pthread_mutex_unlock(&mainListMtx);
+    writeSocketInt(socke, socketBufferSize, 0);//finally inform the parent that everything is ok and ready to receive commands and signals
+
+
+
+    for(i=0;i<numThreads;i++){
+        pthread_mutex_lock(&poolMtx);
+        while(currSizePool >= sizePool){
+            pthread_cond_wait(&poolFull, &poolMtx);
+        }
+        poolEnd = (poolEnd + 1) % sizePool;
+        pool[poolEnd] = "EXIT";
+        currSizePool++;
+        pthread_mutex_unlock(&poolMtx);
+        pthread_cond_signal(&poolEmpty);
+        usleep(0);
     }
 
     for(i=0;i<numThreads;i++){
@@ -150,6 +191,7 @@ int main(int argc, const char** argv) {
 
 void* threadFunction(void* ptr){
     while((threadStop || currSizePool > 0)){
+
         string curr;
         pthread_mutex_lock(&poolMtx);
         while(currSizePool <= 0){
@@ -163,7 +205,25 @@ void* threadFunction(void* ptr){
         pthread_cond_signal(&poolFull);
         usleep(0);
 
-        // cout << curr << endl;
+        if(curr == "EXIT"){
+            break;
+        }
+        cout << pthread_self() << " " << curr << endl;
+
+        pthread_mutex_lock(&mainListMtx);
+        
+        ifstream records(curr);
+        if(records.fail()){
+            perror("Thread: file open ERROR\n");
+        }
+        string line;
+
+        while(getline(records, line)){//and provide each line inside the main list like we did in project one
+            main_list->insertRecord(line, false);
+        }
+        records.close();
+
+        pthread_mutex_unlock(&mainListMtx);
     }
     cout << "THREAD DONE" << endl;
     pthread_exit(0);
