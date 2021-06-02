@@ -2,6 +2,7 @@
 #include <iostream>
 #include <dirent.h>
 #include <cstring>
+#include <string>
 #include <unistd.h>
 #include <stdlib.h>
 
@@ -23,7 +24,7 @@ using namespace std;
 
 int main(int argc, const char** argv) {
     int numMonitors, socketBufferSize, cyclicsocketBufferSize, sizeOfBloom, numThreads;
-    char* pathToDirs;
+    string pathToDirs;
 
     if(argc != 13){//simple steps to set the command line arguments to parameters
         cout << "Error! Wrong parameters:" << endl;
@@ -40,8 +41,7 @@ int main(int argc, const char** argv) {
         }else if(strcmp(argv[i], "-s")==0){
             sizeOfBloom = atoi(argv[i+1]);
         }else if(strcmp(argv[i], "-i")==0){
-            pathToDirs = new char[strlen(argv[i+1])+1]();
-            strcpy(pathToDirs, argv[i+1]);
+            pathToDirs = argv[i+1];
         }else if(strcmp(argv[i], "-t")==0){
             numThreads = atoi(argv[i+1]);
             break;
@@ -49,7 +49,7 @@ int main(int argc, const char** argv) {
     }
 
     DIR *inputDir;
-    if((inputDir = opendir(pathToDirs))== NULL){//open the input_dir provided in the command line to read the countries
+    if((inputDir = opendir(pathToDirs.c_str()))== NULL){//open the input_dir provided in the command line to read the countries
         perror("travelMonitorClient: Cant open dir\n");
         return -1;
     }
@@ -130,7 +130,7 @@ int main(int argc, const char** argv) {
 
         int j=10;
         for(j=10;j<currSize;j++){
-            curr = countryList.popFirst();
+            curr = pathToDirs+'/'+countryList.popFirst();
             toGiveArgs[i][j] = new char[curr.length()+1]();//store the country to the array
             strcpy(toGiveArgs[i][j], curr.c_str());
         }
@@ -191,35 +191,35 @@ int main(int argc, const char** argv) {
         }
     }
 
-    VirlistHeader viruses(sizeOfBloom);//after all of this is done wait for each monitor to receive the bloom filters
-    for(i=0;i<activeMonitors;i++){
-        int tempSize= readSocketInt(sockets[i], socketBufferSize);
-        string tempBlooms[tempSize];//1D array to store the encoded bloom filters for each virus from the monitor
-        for(int j=0;j<tempSize;j++){
-            int ts = readSocketInt(sockets[i], socketBufferSize);//read the blooms with error checking in case something happen while reading
-            while(ts == -1){
-                writeSocketInt(sockets[i], socketBufferSize, -1);
-                ts = readSocketInt(sockets[i], socketBufferSize);
-            }
-            writeSocketInt(sockets[i], socketBufferSize, 0);
-            tempBlooms[j] = readSocket(sockets[i], ts, socketBufferSize);//and store it into a temporary string array
-        }
-        if(readSocketInt(sockets[i], socketBufferSize) != 0){//read the confirmation message from the monitor 
-            exit(-1);
-        }
-        for(int j=0;j<tempSize;j++){//for each virus
-            int k=tempBlooms[j].find("!");//find the ! indicator to substring the name of the virus
-            VirlistNode* curr;
-            if((curr = viruses.searchVirus(tempBlooms[j].substr(0, k))) == NULL){//check if the virus exists, 
-                curr = viruses.insertVirus(tempBlooms[j].substr(0,k));//if not create it
-            }
-            tempBlooms[j].erase(0,k+1);//remove the name(and the !) of the encoded string
-            curr->insertBloom(tempBlooms[j]);//and finally append the data to the bloom filter
-        }
-    }
+    // VirlistHeader viruses(sizeOfBloom);//after all of this is done wait for each monitor to receive the bloom filters
+    // for(i=0;i<activeMonitors;i++){
+    //     int tempSize= readSocketInt(sockets[i], socketBufferSize);
+    //     string tempBlooms[tempSize];//1D array to store the encoded bloom filters for each virus from the monitor
+    //     for(int j=0;j<tempSize;j++){
+    //         int ts = readSocketInt(sockets[i], socketBufferSize);//read the blooms with error checking in case something happen while reading
+    //         while(ts == -1){
+    //             writeSocketInt(sockets[i], socketBufferSize, -1);
+    //             ts = readSocketInt(sockets[i], socketBufferSize);
+    //         }
+    //         writeSocketInt(sockets[i], socketBufferSize, 0);
+    //         tempBlooms[j] = readSocket(sockets[i], ts, socketBufferSize);//and store it into a temporary string array
+    //     }
+    //     if(readSocketInt(sockets[i], socketBufferSize) != 0){//read the confirmation message from the monitor
+    //         exit(-1);
+    //     }
+    //     for(int j=0;j<tempSize;j++){//for each virus
+    //         int k=tempBlooms[j].find("!");//find the ! indicator to substring the name of the virus
+    //         VirlistNode* curr;
+    //         if((curr = viruses.searchVirus(tempBlooms[j].substr(0, k))) == NULL){//check if the virus exists, 
+    //             curr = viruses.insertVirus(tempBlooms[j].substr(0,k));//if not create it
+    //         }
+    //         tempBlooms[j].erase(0,k+1);//remove the name(and the !) of the encoded string
+    //         curr->insertBloom(tempBlooms[j]);//and finally append the data to the bloom filter
+    //     }
+    // }
 
-
     for(i=0;i<activeMonitors;i++){
+        cout << "parent here!" << endl;
         int status;
         wait(&status);
         cout << status << endl;
