@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include "commands.hpp"
+#include "fromProjectOneAndTwo/fromProjectOne/generalList.hpp"
 #include "funcs.hpp"
 
 //functions for the monitor process
@@ -25,11 +26,11 @@ void generateLogFile(int numOfCountries, string countries[], int total, int acce
     file.close();
 }
 
-void appendData(int numofcountries, string path, string countries[], int* fileCounts, GlistHeader* main_list){
+void appendData(int numofcountries, string countries[], int* fileCounts, GlistHeader* main_list){
     //appends data to the main_list's structures
     for(int i=0;i<numofcountries;i++){
         DIR *curr_dir;
-        if((curr_dir = opendir((path+ '/' +countries[i]+'/').c_str()))== NULL){//for each country
+        if((curr_dir = opendir((countries[i]+'/').c_str()))== NULL){//for each country
             perror("Child: appendData Cant open dir\n");
         }
         int count=0;
@@ -43,7 +44,7 @@ void appendData(int numofcountries, string path, string countries[], int* fileCo
         while(fileCounts[i] < count){//and if the fileCount[i] (made previously) is diffrent from the count we just calculated
                                      //it means that there is more files inside this directory so read them and insert them to the main_list
             fileCounts[i]++;
-            ifstream records("input_dir/"+countries[i]+'/'+countries[i]+'-'+to_string(fileCounts[i]).c_str()+".txt");
+            ifstream records(countries[i]+'/'+countries[i]+'-'+to_string(fileCounts[i]).c_str()+".txt");
             if(records.fail()){
                 perror("Child: appendData file open ERROR\n");
             }
@@ -75,7 +76,7 @@ int handlFunctionMonitor(int socke, int bufferSize, int currFunc, GlistHeader* m
             }
             return readSocketInt(socke, bufferSize);//read the 1 or 0 that indicated if the request was accepted or rejected
         }
-        case 104:{//104 case is for  /searchVaccinationStatus command
+        case 104:{//104 case is for /searchVaccinationStatus command
             int id = readSocketInt(socke, bufferSize);//read the citizenID
             SRListHeader* returnedViruses = main_list->vaccineStatus(id, false);//vaccineStatus function with boolean returns a SRListHeader list header with all the vaccinations that a citizen has done instead of printing messages
             if(returnedViruses != NULL && returnedViruses->len > 0){//check if the citizen exists

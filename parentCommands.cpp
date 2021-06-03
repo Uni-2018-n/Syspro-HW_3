@@ -74,7 +74,7 @@ void addVaccinationRecords(int socketfds[], int bufferSize, int activeMonitors, 
     for(int i=0;i<activeMonitors;i++){//find the monitor that has the country we have added files into
         for(int j=0;j<dirCount;j++){
             if(strcmp(toGiveDirs[i][j].c_str(), country.c_str()) == 0){
-                kill(monitorPids[i], SIGUSR1);//send a SIGUSR1 signal to the monitor process
+                writeSocketInt(socketfds[i], bufferSize, 106);
                 int tempSize= readSocketInt(socketfds[i], bufferSize);//and start reading the new updated bloom filters
                 string tempBlooms[tempSize];
                 for(int l=0;l<tempSize;l++){

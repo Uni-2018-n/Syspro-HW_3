@@ -229,11 +229,7 @@ int main(int argc, const char** argv) {
         }
     }
 
-    // viruses.vaccineStatusBloom(9654, "Rubella-Including-congenital");
-
-
     TSHeader stats;
-
     cout <<
     "/travelRequest citizenID date countryFrom countryTo virusName" << endl <<
     "/travelStats virusName date1 date2 [country]" << endl <<
@@ -245,19 +241,14 @@ int main(int argc, const char** argv) {
         string command;
         cout << "Waiting for command: " << flush;
         cin >> command;
-        if(cin.fail()){ // if we wait for input and get signal this cin fail and user havent input anything yet so instantly go to specific action
-            cin.clear();
-            break;
-        }
         if(command == "/exit"){//exit command
             closedir(inputDir);
             int status;
             pid_t pid;
             for(i=0;i<numMonitors;i++){
-                // kill(monitorPids[i], SIGKILL);//TODO: send exit command to processes
-                writeSocketInt(socketfds[i], socketBufferSize, 105);
+                writeSocketInt(sockets[i], socketBufferSize, 105);
                 pid = waitpid(monitorPids[i], &status, 0);
-                cout << "child " << (long)pid << " got exited " << status << endl;           
+                cout << "child " << (long)pid << " got exited " << status << endl;
                 close(socketfds[i]);
             }
             generateLogFileParent(activeMonitors, int(countryList.count/activeMonitors)+1, toGiveDirs, stats.total, stats.accepted, stats.rejected);
@@ -265,7 +256,6 @@ int main(int argc, const char** argv) {
                 delete[] toGiveDirs[i];
             }
             delete[] toGiveDirs;
-            cout << "PARENT DONE!" << endl;
             return 0;
         }
         cin.get();
@@ -278,7 +268,7 @@ int main(int argc, const char** argv) {
             if( x== ' '){
                 ctemp[i] = word;
                 i++;
-                word ="";
+                word = "";
             }else{
                 word = word + x;
             }
@@ -286,7 +276,7 @@ int main(int argc, const char** argv) {
         ctemp[i] = word;
         i++;
         if(command == "/travelRequest"){
-            travelRequest(&stats, &viruses, socketfds, socketBufferSize, activeMonitors, int(countryList.count/activeMonitors)+1, toGiveDirs, monitorPids, stoi(ctemp[0]), ctemp[1], ctemp[2], ctemp[3], ctemp[4]);
+            travelRequest(&stats, &viruses, sockets, socketBufferSize, activeMonitors, int(countryList.count/activeMonitors)+1, toGiveDirs, monitorPids, stoi(ctemp[0]), ctemp[1], ctemp[2], ctemp[3], ctemp[4]);
             cout << "Done!" << endl;
         }else if(command == "/travelStats"){
             if(i==4){//in case we have a country or not
@@ -299,10 +289,10 @@ int main(int argc, const char** argv) {
                 cout << "Error /travelStatus wrong input" << endl;
             }
         }else if(command == "/addVaccinationRecords"){
-            addVaccinationRecords(socketfds, socketBufferSize, activeMonitors, int(countryList.count/activeMonitors)+1, toGiveDirs, monitorPids, ctemp[0], &viruses);
+            addVaccinationRecords(sockets, socketBufferSize, activeMonitors, int(countryList.count/activeMonitors)+1, toGiveDirs, monitorPids, ctemp[0], &viruses);
             cout << "Done!" << endl;
         }else if(command == "/searchVaccinationStatus"){
-            searchVaccinationStatus(socketfds, socketBufferSize, activeMonitors, monitorPids, stoi(ctemp[0]));
+            searchVaccinationStatus(sockets, socketBufferSize, activeMonitors, monitorPids, stoi(ctemp[0]));
             cout << "Done!" << endl;
         }
         cout << endl;

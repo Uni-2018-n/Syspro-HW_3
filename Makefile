@@ -6,6 +6,7 @@ ITEM2 = monitorServer
 
 compile : $(SOURCE)
 	# gcc $(FLAGS) $(ITEM) $(SOURCE)
+	rm -rf log_file.*
 	g++ $(FLAGS) $(ITEM1) $(SOURCE1)
 	g++ $(FLAGS) $(ITEM2) $(SOURCE2) -lpthread
 

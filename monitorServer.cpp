@@ -27,7 +27,6 @@ pthread_cond_t poolEmpty;
 pthread_cond_t poolDone;
 pthread_mutex_t currSizeMtx;
 
-int threadStop;
 GlistHeader* main_list;
 pthread_mutex_t mainListMtx;
 
@@ -82,8 +81,6 @@ int main(int argc, const char** argv) {
     pthread_cond_init(&poolFull, 0);
 
 
-    threadStop = 1;
-
     pthread_t threads[numThreads];
     for(i=0;i<numThreads;i++){
         pthread_create(&threads[i], 0, threadFunction, 0);
@@ -114,7 +111,7 @@ int main(int argc, const char** argv) {
         exit(1);
     }
 
-    int countFilesOfDirs[dirLen];//array usefull for SIGUSR1 signal(see next)
+    int countFilesOfDirs[dirLen];
     for(i=0;i<dirLen;i++){
         DIR *curr_dir;
         if((curr_dir = opendir((pathToDirs[i] + '/').c_str()))== NULL){//open the directory 
@@ -144,6 +141,21 @@ int main(int argc, const char** argv) {
         countFilesOfDirs[i]=count;
         closedir(curr_dir);
     }
+    for(i=0;i<numThreads;i++){
+        pthread_mutex_lock(&poolMtx);
+        while(currSizePool >= sizePool){
+            pthread_cond_wait(&poolFull, &poolMtx);
+        }
+        poolEnd = (poolEnd + 1) % sizePool;
+        pool[poolEnd] = "EXIT";
+        currSizePool++;
+        pthread_mutex_unlock(&poolMtx);
+        pthread_cond_signal(&poolEmpty);
+        usleep(0);
+    }
+    for(i=0;i<numThreads;i++){
+        pthread_join(threads[i], 0);
+    }
 
 
     pthread_mutex_lock(&mainListMtx);
@@ -167,55 +179,47 @@ int main(int argc, const char** argv) {
     int rejectedRequests=0;
     while(true){
         int currFunc= readSocketInt(socke, socketBufferSize);
-            if(currFunc != -1){
-                int t = handlFunctionMonitor(socke, socketBufferSize, currFunc, main_list);//by passing the command to the handler function 
-                if(t == 1){//this function could return 1 or 0 if the function was a /travelRequest, if yes update the variables
-                    acceptedRequests++;
-                    totalRequests++;
-                }else if(t == 0){
-                    rejectedRequests++;
-                    totalRequests++;
-                }else if(t == -2){
-                    break;
+        if(currFunc == 106){
+            appendData(dirLen, pathToDirs, countFilesOfDirs, main_list);//use the appendData function to append the data in the main_list
+            temp_blooms = main_list->getBlooms();//re-encode the blooms
+            writeSocketInt(socke, socketBufferSize, main_list->getCountViruses());//and send the updated blooms to the parent process
+            for(i=0;i<main_list->getCountViruses();i++){
+                writeSocketInt(socke, socketBufferSize, temp_blooms[i].length());
+                int t = readSocketInt(socke, socketBufferSize);
+                while(t != 0){
+                    writeSocketInt(socke, socketBufferSize, temp_blooms[i].length());
+                    t = readSocketInt(socke, socketBufferSize);
                 }
+                writeSocket(socke, socketBufferSize, temp_blooms[i]);
+            }
+        }else if(currFunc != -1){
+            int t = handlFunctionMonitor(socke, socketBufferSize, currFunc, main_list);//by passing the command to the handler function 
+            if(t == 1){//this function could return 1 or 0 if the function was a /travelRequest, if yes update the variables
+                acceptedRequests++;
+                totalRequests++;
+            }else if(t == 0){
+                rejectedRequests++;
+                totalRequests++;
+            }else if(t == -2){
+                break;
+            }
         }
     }
 
     generateLogFile(dirLen, pathToDirs, totalRequests, acceptedRequests, rejectedRequests);//simply generate the log file and continue
-    cout << getpid() << ": exiting..." << endl;
     delete main_list;
     delete[] temp_blooms;
 
-    for(i=0;i<numThreads;i++){
-        pthread_mutex_lock(&poolMtx);
-        while(currSizePool >= sizePool){
-            pthread_cond_wait(&poolFull, &poolMtx);
-        }
-        poolEnd = (poolEnd + 1) % sizePool;
-        pool[poolEnd] = "EXIT";
-        currSizePool++;
-        pthread_mutex_unlock(&poolMtx);
-        pthread_cond_signal(&poolEmpty);
-        usleep(0);
-    }
 
-    for(i=0;i<numThreads;i++){
-        threadStop = 0;
-        pthread_join(threads[i], 0);
-        cout << "IM HERE" << endl;
-    }
     pthread_cond_destroy(&poolEmpty);
     pthread_cond_destroy(&poolFull);
     pthread_mutex_destroy(&poolMtx);
     close(socke);
-
-    cout << "DONE!" << endl;
     return 0;
 }
 
 void* threadFunction(void* ptr){
-    while((threadStop || currSizePool > 0)){
-
+    while(true){
         string curr;
         pthread_mutex_lock(&poolMtx);
         while(currSizePool <= 0){
@@ -232,7 +236,6 @@ void* threadFunction(void* ptr){
         if(curr == "EXIT"){
             break;
         }
-        cout << pthread_self() << " " << curr << endl;
 
         pthread_mutex_lock(&mainListMtx);
         
@@ -249,6 +252,5 @@ void* threadFunction(void* ptr){
 
         pthread_mutex_unlock(&mainListMtx);
     }
-    cout << "THREAD DONE" << endl;
     pthread_exit(0);
 }
