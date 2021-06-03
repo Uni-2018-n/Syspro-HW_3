@@ -14,9 +14,11 @@
 #include <ctype.h>
 #include <signal.h>
 
-#include "fromProjectOneAndTwo/fromProjectTwo/sList.hpp"
-#include "fromProjectOneAndTwo/fromProjectOne/Structures/virusesList.hpp"
 #include "funcs.hpp"
+#include "fromProjectOneAndTwo/fromProjectOne/Structures/virusesList.hpp"
+#include "fromProjectOneAndTwo/fromProjectTwo/travelStatsList.hpp"
+#include "fromProjectOneAndTwo/fromProjectTwo/sList.hpp"
+#include "parentCommands.hpp"
 
 using namespace std;
 
@@ -70,9 +72,15 @@ int main(int argc, const char** argv) {
         activeMonitors = numMonitors;//else we use as many monitors as user provided from command line
     }
 
+    int monitorPids[activeMonitors];
+
     char** toGiveArgs[activeMonitors];
     int i=0;
     int temp;
+    string** toGiveDirs = new string*[activeMonitors];
+    for(i=0;i<activeMonitors;i++){
+        toGiveDirs[i] = new string[int(countryList.count/activeMonitors)+1];
+    }
 
     if(int(countryList.count/activeMonitors) == float(float(countryList.count)/float(activeMonitors))){
         temp = 0;
@@ -129,10 +137,14 @@ int main(int argc, const char** argv) {
         strcpy(toGiveArgs[i][9], curr.c_str());
 
         int j=10;
+        int k=0;
         for(j=10;j<currSize;j++){
-            curr = pathToDirs+'/'+countryList.popFirst();
+            string t =countryList.popFirst();
+            curr = pathToDirs+'/'+t;
             toGiveArgs[i][j] = new char[curr.length()+1]();//store the country to the array
             strcpy(toGiveArgs[i][j], curr.c_str());
+            toGiveDirs[i][k] = t;
+            k++;
         }
         toGiveArgs[i][j] = nullptr;
     }
@@ -143,7 +155,6 @@ int main(int argc, const char** argv) {
     struct sockaddr_in address;
     struct sockaddr* addressptr = (struct sockaddr *)&address;
     int opt =1;
-    int addrlen = sizeof(address);
 
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -186,7 +197,7 @@ int main(int argc, const char** argv) {
                 perror("error");
                 exit(1);
             }
-            // monitorPids[i]=pid;//in the parent process store the pid for use later
+            monitorPids[i]=pid;//in the parent process store the pid for use later
             break;
         }
     }
@@ -218,15 +229,82 @@ int main(int argc, const char** argv) {
         }
     }
 
-    viruses.vaccineStatusBloom(9654, "Rubella-Including-congenital");
+    // viruses.vaccineStatusBloom(9654, "Rubella-Including-congenital");
 
-    for(i=0;i<activeMonitors;i++){
-        int status;
-        wait(&status);
-        cout << status << endl;
-        close(socketfds[i]);
+
+    TSHeader stats;
+
+    cout <<
+    "/travelRequest citizenID date countryFrom countryTo virusName" << endl <<
+    "/travelStats virusName date1 date2 [country]" << endl <<
+    "/addVaccinationRecords country" << endl <<
+    "/searchVaccinationStatus citizenID" << endl <<
+    "/exit" << endl << endl;
+
+    while(true){//simple switch-case but for strings
+        string command;
+        cout << "Waiting for command: " << flush;
+        cin >> command;
+        if(cin.fail()){ // if we wait for input and get signal this cin fail and user havent input anything yet so instantly go to specific action
+            cin.clear();
+            break;
+        }
+        if(command == "/exit"){//exit command
+            closedir(inputDir);
+            int status;
+            pid_t pid;
+            for(i=0;i<numMonitors;i++){
+                // kill(monitorPids[i], SIGKILL);//TODO: send exit command to processes
+                writeSocketInt(socketfds[i], socketBufferSize, 105);
+                pid = waitpid(monitorPids[i], &status, 0);
+                cout << "child " << (long)pid << " got exited " << status << endl;           
+                close(socketfds[i]);
+            }
+            generateLogFileParent(activeMonitors, int(countryList.count/activeMonitors)+1, toGiveDirs, stats.total, stats.accepted, stats.rejected);
+            for(i=0;i<activeMonitors;i++){
+                delete[] toGiveDirs[i];
+            }
+            delete[] toGiveDirs;
+            cout << "PARENT DONE!" << endl;
+            return 0;
+        }
+        cin.get();
+        string line;
+        getline(cin, line);//here we need to finish the command and then do the action
+        string ctemp[8];//convert the readed string to a string array for more simplicity
+        i=0;
+        string word = "";
+        for(auto x : line){
+            if( x== ' '){
+                ctemp[i] = word;
+                i++;
+                word ="";
+            }else{
+                word = word + x;
+            }
+        }
+        ctemp[i] = word;
+        i++;
+        if(command == "/travelRequest"){
+            travelRequest(&stats, &viruses, socketfds, socketBufferSize, activeMonitors, int(countryList.count/activeMonitors)+1, toGiveDirs, monitorPids, stoi(ctemp[0]), ctemp[1], ctemp[2], ctemp[3], ctemp[4]);
+            cout << "Done!" << endl;
+        }else if(command == "/travelStats"){
+            if(i==4){//in case we have a country or not
+                stats.getStats(ctemp[0], ctemp[1], ctemp[2], ctemp[3]);
+                cout << "Done!" << endl;
+            }else if(i==3){
+                stats.getStats(ctemp[0], ctemp[1], ctemp[2]);
+                cout << "Done!" << endl;
+            }else{
+                cout << "Error /travelStatus wrong input" << endl;
+            }
+        }else if(command == "/addVaccinationRecords"){
+            addVaccinationRecords(socketfds, socketBufferSize, activeMonitors, int(countryList.count/activeMonitors)+1, toGiveDirs, monitorPids, ctemp[0], &viruses);
+            cout << "Done!" << endl;
+        }else if(command == "/searchVaccinationStatus"){
+            searchVaccinationStatus(socketfds, socketBufferSize, activeMonitors, monitorPids, stoi(ctemp[0]));
+            cout << "Done!" << endl;
+        }
+        cout << endl;
     }
-
-    cout << "PARENT DONE!" << endl; 
-    return 0;
 }

@@ -12,6 +12,7 @@
 
 #include "fromProjectOneAndTwo/fromProjectOne/generalList.hpp"
 #include "funcs.hpp"
+#include "commands.hpp"
 
 using namespace std;
 
@@ -161,6 +162,29 @@ int main(int argc, const char** argv) {
     writeSocketInt(socke, socketBufferSize, 0);//finally inform the parent that everything is ok and ready to receive commands and signals
 
 
+    int totalRequests=0;
+    int acceptedRequests=0;
+    int rejectedRequests=0;
+    while(true){
+        int currFunc= readSocketInt(socke, socketBufferSize);
+            if(currFunc != -1){
+                int t = handlFunctionMonitor(socke, socketBufferSize, currFunc, main_list);//by passing the command to the handler function 
+                if(t == 1){//this function could return 1 or 0 if the function was a /travelRequest, if yes update the variables
+                    acceptedRequests++;
+                    totalRequests++;
+                }else if(t == 0){
+                    rejectedRequests++;
+                    totalRequests++;
+                }else if(t == -2){
+                    break;
+                }
+        }
+    }
+
+    generateLogFile(dirLen, pathToDirs, totalRequests, acceptedRequests, rejectedRequests);//simply generate the log file and continue
+    cout << getpid() << ": exiting..." << endl;
+    delete main_list;
+    delete[] temp_blooms;
 
     for(i=0;i<numThreads;i++){
         pthread_mutex_lock(&poolMtx);
