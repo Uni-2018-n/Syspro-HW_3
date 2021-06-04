@@ -256,6 +256,18 @@ int main(int argc, const char** argv) {
                 delete[] toGiveDirs[i];
             }
             delete[] toGiveDirs;
+            for(i=0;i<activeMonitors;i++){
+                int currSize;
+                if(i==activeMonitors-1){
+                    currSize = 10+int(countryList.count/activeMonitors);
+                }else{
+                    currSize = 10+int(countryList.count/activeMonitors)+temp;
+                }
+                for(int j=0;j<currSize;j++){
+                    delete[] toGiveArgs[i][j];
+                }
+                delete[] toGiveArgs[i];
+            }
             return 0;
         }
         cin.get();

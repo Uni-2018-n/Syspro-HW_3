@@ -19,6 +19,15 @@ TSHeader::TSHeader(){
     accepted =0;
 }
 
+TSHeader::~TSHeader(){
+    TSNode* temp = start;
+    while(temp != NULL){
+        start = start->next;
+        delete temp;
+        temp = start;
+    }
+}
+
 void TSHeader::insert(int status, string country, string date){//simple insert at end of the list function
     date = checkAndFormatDate(date);//check and format date function called so we have yyyy-mm-dd format
     if(start == NULL){

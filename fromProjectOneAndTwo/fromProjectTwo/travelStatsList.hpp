@@ -22,6 +22,7 @@ public:
     int rejected;
     int accepted;
     TSHeader();
+    ~TSHeader();
     void insert(int status, string country, string date);
     void getStats(string virName, string date1, string date2);
     void getStats(string virName, string date1, string date2, string country);

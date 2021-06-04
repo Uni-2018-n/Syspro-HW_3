@@ -30,7 +30,9 @@ pthread_mutex_t currSizeMtx;
 GlistHeader* main_list;
 pthread_mutex_t mainListMtx;
 
-
+string getCountry(string t){
+    return t.substr(t.find('/')+1);
+}
 
 void* threadFunction(void* ptr);
 
@@ -180,7 +182,63 @@ int main(int argc, const char** argv) {
     while(true){
         int currFunc= readSocketInt(socke, socketBufferSize);
         if(currFunc == 106){
-            appendData(dirLen, pathToDirs, countFilesOfDirs, main_list);//use the appendData function to append the data in the main_list
+            sizePool = cyclicBufferSize;
+            currSizePool =0;
+            poolStart =0;
+            poolEnd = -1;
+            for(i=0;i<numThreads;i++){
+                pthread_create(&threads[i], 0, threadFunction, 0);
+            }
+            for(i=0;i<dirLen;i++){
+                DIR *curr_dir;
+                if((curr_dir = opendir((pathToDirs[i]+'/').c_str()))== NULL){//for each country
+                    perror("Child: appendData Cant open dir\n");
+                }
+                int count=0;
+                struct dirent *dirent;
+                while((dirent=readdir(curr_dir)) != NULL){//we count the files of the directory
+                    if(strcmp(dirent->d_name, ".") == 0 || strcmp(dirent->d_name, "..")==0){
+                        continue;
+                    }
+                    count++;
+                }
+                while(countFilesOfDirs[i] < count){//and if the fileCount[i] (made previously) is diffrent from the count we just calculated
+                                            //it means that there is more files inside this directory so read them and insert them to the main_list
+                    countFilesOfDirs[i]++;
+                    pthread_mutex_lock(&poolMtx);
+                    while(currSizePool >= sizePool){
+                        pthread_cond_wait(&poolFull, &poolMtx);
+                    }
+                    poolEnd = (poolEnd + 1) % sizePool;
+                    pool[poolEnd] = pathToDirs[i]+'/'+getCountry(pathToDirs[i])+'-'+to_string(countFilesOfDirs[i]).c_str()+".txt";
+
+                    currSizePool++;
+
+
+                    pthread_mutex_unlock(&poolMtx);
+                    pthread_cond_signal(&poolEmpty);
+                    usleep(0);
+                }
+                closedir(curr_dir);
+            }
+            for(i=0;i<numThreads;i++){
+                pthread_mutex_lock(&poolMtx);
+                while(currSizePool >= sizePool){
+                    pthread_cond_wait(&poolFull, &poolMtx);
+                }
+                poolEnd = (poolEnd + 1) % sizePool;
+                pool[poolEnd] = "EXIT";
+                currSizePool++;
+                pthread_mutex_unlock(&poolMtx);
+                pthread_cond_signal(&poolEmpty);
+                usleep(0);
+            }
+            for(i=0;i<numThreads;i++){
+                pthread_join(threads[i], 0);
+            }
+
+
+            pthread_mutex_lock(&mainListMtx);
             temp_blooms = main_list->getBlooms();//re-encode the blooms
             writeSocketInt(socke, socketBufferSize, main_list->getCountViruses());//and send the updated blooms to the parent process
             for(i=0;i<main_list->getCountViruses();i++){
@@ -192,6 +250,7 @@ int main(int argc, const char** argv) {
                 }
                 writeSocket(socke, socketBufferSize, temp_blooms[i]);
             }
+            pthread_mutex_unlock(&mainListMtx);
         }else if(currFunc != -1){
             int t = handlFunctionMonitor(socke, socketBufferSize, currFunc, main_list);//by passing the command to the handler function 
             if(t == 1){//this function could return 1 or 0 if the function was a /travelRequest, if yes update the variables
