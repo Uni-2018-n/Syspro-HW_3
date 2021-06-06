@@ -1,6 +1,5 @@
 #include "travelStatsList.hpp"
 #include "../fromProjectOne/classes.hpp"
-#include <cstring>
 
 //TSNode
 TSNode::TSNode(int o, string c, string d){

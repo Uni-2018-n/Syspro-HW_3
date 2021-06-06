@@ -1,16 +1,9 @@
 #include <dirent.h>
 #include <fstream>
-#include <iostream>
 #include <cstring>
-#include <unistd.h>
 #include <netdb.h>
-#include <pthread.h>
-#include <string>
-#include <sys/socket.h>
-#include <arpa/inet.h>
 #include <unistd.h>
 
-#include "fromProjectOneAndTwo/fromProjectOne/generalList.hpp"
 #include "funcs.hpp"
 #include "commands.hpp"
 

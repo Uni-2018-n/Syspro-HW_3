@@ -1,10 +1,5 @@
-#include <iostream>
 #include <fstream>
-#include <string>
-#include <cstring>
 #include <unistd.h>
-#include <dirent.h>
-#include "commands.hpp"
 #include "fromProjectOneAndTwo/fromProjectOne/generalList.hpp"
 #include "funcs.hpp"
 

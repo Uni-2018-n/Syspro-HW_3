@@ -1,11 +1,8 @@
 #ifndef _VIRUSESLIST_HPP_
 #define _VIRUSESLIST_HPP_
-#include <iostream>
-#include <string>
 
 #include "bloomFilter.hpp"
 #include "skipList.hpp"
-#include "../classes.hpp"
 using namespace std;
 
 class VirlistNode{

@@ -1,13 +1,8 @@
-#include <csignal>
 #include <cstring>
 #include <fstream>
-#include <iostream>
 #include <sstream>
-#include <string>
 #include <unistd.h>
 
-#include "fromProjectOneAndTwo/fromProjectOne/Structures/virusesList.hpp"
-#include "fromProjectOneAndTwo/fromProjectOne/classes.hpp"
 #include "parentCommands.hpp"
 #include "funcs.hpp"
 

@@ -1,7 +1,6 @@
 #ifndef _SKIPLIST_HPP_
 #define _SKIPLIST_HPP_
 
-#include <iostream>
 #include "../classes.hpp"
 using namespace std;
 

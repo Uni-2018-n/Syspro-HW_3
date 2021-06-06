@@ -2,7 +2,6 @@
 #define _GENERALLIST_HPP_
 #include <iostream>
 
-#include "classes.hpp"
 #include "Structures/countryList.hpp"
 #include "Structures/virusesList.hpp"
 

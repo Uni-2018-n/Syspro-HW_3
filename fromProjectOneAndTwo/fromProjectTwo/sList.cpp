@@ -1,6 +1,5 @@
 #include "sList.hpp"
 #include <cstring>
-#include <iostream>
 
 //SLnode
 SLnode::SLnode(string t){

@@ -1,6 +1,5 @@
-#include <cstring>
-
 #include "classes.hpp"
+
 citizenRecord::citizenRecord(string id, string fn, string ln, string* ct, string a){
   citizenId = new int(stoi(id));
   firstName = fn;

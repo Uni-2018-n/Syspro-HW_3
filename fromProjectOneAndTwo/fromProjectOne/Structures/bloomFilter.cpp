@@ -1,7 +1,5 @@
-#include <iostream>
 #include <cstring>
 #include "bloomFilter.hpp"
-#include <unistd.h>
 
 using namespace std;
 

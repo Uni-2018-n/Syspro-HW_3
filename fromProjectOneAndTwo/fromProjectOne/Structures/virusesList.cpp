@@ -1,7 +1,4 @@
-#include <iostream>
-#include <string>
 #include "virusesList.hpp"
-#include "skipList.hpp"
 
 VirlistNode::VirlistNode(string i, int l){
   item = i;

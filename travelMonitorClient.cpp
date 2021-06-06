@@ -1,22 +1,11 @@
-#include <asm-generic/socket.h>
-#include <iostream>
 #include <dirent.h>
 #include <cstring>
-#include <string>
 #include <unistd.h>
-#include <stdlib.h>
 
 #include <sys/wait.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <netdb.h>
-#include <ctype.h>
-#include <signal.h>
 
 #include "funcs.hpp"
-#include "fromProjectOneAndTwo/fromProjectOne/Structures/virusesList.hpp"
-#include "fromProjectOneAndTwo/fromProjectTwo/travelStatsList.hpp"
 #include "fromProjectOneAndTwo/fromProjectTwo/sList.hpp"
 #include "parentCommands.hpp"
 

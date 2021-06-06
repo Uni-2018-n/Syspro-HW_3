@@ -1,4 +1,3 @@
-#include <iostream>
 #include "skipList.hpp"
 using namespace std;
 
