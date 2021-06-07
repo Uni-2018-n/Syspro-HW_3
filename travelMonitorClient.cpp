@@ -234,7 +234,7 @@ int main(int argc, const char** argv) {
         if(command == "/exit"){//exit command
             int status;
             pid_t pid;
-            for(i=0;i<numMonitors;i++){
+            for(i=0;i<activeMonitors;i++){
                 writeSocketInt(socketFds[i], socketBufferSize, 105);//send a protocol message instead of sending a signal
                 pid = waitpid(monitorPids[i], &status, 0);
                 cout << "child " << (long)pid << " got exited " << status << endl;
